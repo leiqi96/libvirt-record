@@ -1727,8 +1727,10 @@ typedef enum {
 
 struct _virDomainShmemDef {
     char *name;
+	
     unsigned long long size;
     int model; /* enum virDomainShmemModel */
+	virTristateSwitch master;
     struct {
         bool enabled;
         virDomainChrSourceDef chr;

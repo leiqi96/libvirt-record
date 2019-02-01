@@ -14665,7 +14665,6 @@ virDomainShmemDefParseXML(virDomainXMLOptionPtr xmlopt,
     xmlNodePtr save = ctxt->node;
     xmlNodePtr server = NULL;
 
-
     if (VIR_ALLOC(def) < 0)
         return NULL;
 
@@ -14685,11 +14684,27 @@ virDomainShmemDefParseXML(virDomainXMLOptionPtr xmlopt,
         VIR_FREE(tmp);
     }
 
+
     if (!(def->name = virXMLPropString(node, "name"))) {
         virReportError(VIR_ERR_XML_ERROR, "%s",
                        _("shmem element must contain 'name' attribute"));
         goto cleanup;
     }
+
+
+	if ((tmp = virXMLPropString(node, "master"))) {
+		int val;
+	
+		if ((val = virTristateSwitchTypeFromString(tmp)) <= 0) {
+			virReportError(VIR_ERR_XML_ERROR,
+						   _("invalid ivshmem master setting for shmem: '%s'"),
+						   tmp);
+			goto cleanup;
+		}
+		def->master = val;	
+		VIR_FREE(tmp);
+	}
+
 
     if (virDomainParseScaledValue("./size[1]", NULL, ctxt,
                                   &def->size, 1, ULLONG_MAX, false) < 0)
